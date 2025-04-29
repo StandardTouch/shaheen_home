@@ -9,7 +9,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(title: const Text('Shaheen',style: TextStyle(fontSize: 24),), backgroundColor: const Color.fromARGB(255, 101, 168, 223), ),
+        appBar: AppBar(title: const Text('Shaheen',style: TextStyle(fontSize: 24),), backgroundColor: const Color.fromARGB(255, 241, 243, 245), ),
         body: LayoutBuilder(
           builder: (context, constraints) {
             final cols = constraints.maxWidth > 600 ? 4 : 2;
