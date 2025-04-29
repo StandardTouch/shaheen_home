@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shaheen_home/dummy_data.dart';
+import 'web_view_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({ super.key });
@@ -24,34 +25,42 @@ class HomePage extends StatelessWidget {
                 itemCount: dummyItems.length,
                 itemBuilder: (ctx, i) {
                   final item = dummyItems[i];
-                  return Card(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // circular logo
-                        Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: CircleAvatar(
-                            radius: 40,
-                            backgroundImage: AssetImage(item.logoAsset),
-                            backgroundColor: Colors.transparent,
-                          ),
+                  return InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => WebViewPage(url: item.url, title: item.name),
                         ),
-                        // name & url
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(item.name,
-                                  style: const TextStyle(fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 4),
-                              Text(item.url,
-                                  style: TextStyle(color: Colors.grey[700], fontSize: 12)),
-                            ],
+                      );
+                    },
+                    child: Card(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: CircleAvatar(
+                              radius: 40,
+                              backgroundImage: AssetImage(item.logoAsset),
+                              backgroundColor: Colors.transparent,
+                            ),
                           ),
-                        ),
-                      ],
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(item.name,
+                                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                                const SizedBox(height: 4),
+                                Text(item.url,
+                                    style: TextStyle(color: Colors.grey[700], fontSize: 12)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
