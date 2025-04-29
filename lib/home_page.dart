@@ -59,10 +59,19 @@ class HomePage extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.all(8),
                             child: CircleAvatar(
-                              radius: 40,
-                              backgroundImage: AssetImage(item.logoAsset),
-                              backgroundColor: Colors.transparent,
-                            ),
+  radius: 40,
+  backgroundImage: AssetImage(item.logoAsset),
+  backgroundColor: Colors.transparent,
+  child: ClipOval(
+    child: Image.asset(
+      item.logoAsset,
+      fit: BoxFit.cover, // Ensures the image fills the circle and maintains aspect ratio
+      width: 80,  // The width and height control the size inside the avatar
+      height: 80,
+    ),
+  ),
+),
+
                           ),
                           SizedBox(height: 25,),
                           Padding(
