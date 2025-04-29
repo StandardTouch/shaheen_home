@@ -1,10 +1,15 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:shaheen_home/firebase_options.dart';
 import 'package:shaheen_home/go_router.dart';
-import 'package:shaheen_home/home_page.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 
-void main() {
+void main() async {
   usePathUrlStrategy();
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -18,7 +23,25 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color(0xff73BF53),
+        ),
+        // auth input decoration theme
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        // auth button theme
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: ButtonStyle(
+            padding: WidgetStateProperty.all<EdgeInsets>(
+              const EdgeInsets.all(24),
+            ),
+            backgroundColor: WidgetStateProperty.all<Color>(Color(0xff73BF53)),
+            foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
+          ),
+        ),
       ),
       routerConfig: router,
     );
