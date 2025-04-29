@@ -9,7 +9,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(title: const Text('Shaheen')),
+        appBar: AppBar(title: const Text('Shaheen',style: TextStyle(fontSize: 24),), backgroundColor: const Color.fromARGB(255, 101, 168, 223), ),
         body: LayoutBuilder(
           builder: (context, constraints) {
             final cols = constraints.maxWidth > 600 ? 4 : 2;
@@ -27,12 +27,30 @@ class HomePage extends StatelessWidget {
                   final item = dummyItems[i];
                   return InkWell(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => WebViewPage(url: item.url, title: item.name),
-                        ),
-                      );
+                      Navigator.of(context).push(PageRouteBuilder(
+  pageBuilder: (ctx, anim, secAnim) => WebViewPage(
+    url: item.url,
+    title: item.name,
+  ),
+
+  // 300ms for both push & pop:
+  transitionDuration: const Duration(milliseconds: 300),
+  reverseTransitionDuration: const Duration(milliseconds: 300),
+
+  transitionsBuilder: (ctx, animation, secondaryAnimation, child) {
+    // tween from right → center
+    final tween = Tween<Offset>(
+      begin: const Offset(1.0, 0.0),
+      end: Offset.zero,
+    ).chain(CurveTween(curve: Curves.ease));
+
+    return SlideTransition(
+      position: animation.drive(tween),
+      child: child,
+    );
+  },
+));
+
                     },
                     child: Card(
                       child: Column(
@@ -46,6 +64,7 @@ class HomePage extends StatelessWidget {
                               backgroundColor: Colors.transparent,
                             ),
                           ),
+                          SizedBox(height: 25,),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: Column(
