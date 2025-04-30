@@ -11,7 +11,6 @@ Future<void> showWhitelistedSiteDialog(
   TextEditingController nameController = TextEditingController();
   TextEditingController domainController = TextEditingController();
   bool isActive = true;
-  String selectedPrefix = 'https://';
   String iconUrl = '';
   dynamic pickedFile;
 
@@ -127,7 +126,7 @@ Future<void> showWhitelistedSiteDialog(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     if (iconUrl.isNotEmpty) {
-                      String fullUrl = selectedPrefix + domainController.text;
+                      String fullUrl = domainController.text;
 
                       // Use add() to let Firestore generate a document ID
                       await FirebaseFirestore.instance
