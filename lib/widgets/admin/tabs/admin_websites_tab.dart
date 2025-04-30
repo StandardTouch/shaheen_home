@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shaheen_home/website_model.dart';
-import 'package:shaheen_home/widgets/admin/blacklisted_site_dialgo.dart';
+import 'package:shaheen_home/widgets/admin/blacklisted_site_dialog.dart';
 import 'package:shaheen_home/widgets/admin/white_listed_site_dialog.dart';
 
 class AdminWebsitesTab extends StatefulWidget {
