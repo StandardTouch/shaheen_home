@@ -223,17 +223,32 @@ class _WebViewPageState extends State<WebViewPage> {
     final webUri = WebUri(widget.url);
 
     // Use PopScope to handle back button press
-    return 
-
+  
+    
+      // Use WillPopScope to handle device back button and WebView back navigation
+  return WillPopScope(
+    onWillPop: () async {
+      // Check if WebView can go back
+      bool canGoBack = await _controller.canGoBack();
+      if (canGoBack) {
+        // Go back within the WebView's history (device back button will only navigate back inside the WebView)
+        _controller.goBack();
+        return false; // Prevent closing the page
+      } else {
+        // If no history, close the WebView page
+        Navigator.of(context).pop();
+        return true; // Allow closing the page
+      }
+    },
         // Check if WebView can go back
-    Scaffold(
+    child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
         leading: IconButton(
   icon: const Icon(Icons.close),
   onPressed: () => Navigator.of(context).pop(),
 ),
-
+  
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(3),
             child: LinearProgressIndicator(value: _progress),
@@ -295,7 +310,7 @@ class _WebViewPageState extends State<WebViewPage> {
               ),
           ],
         ),
-      
+    )
     );
   }
 }
