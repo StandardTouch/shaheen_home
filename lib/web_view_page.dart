@@ -182,6 +182,7 @@ class _WebViewPageState extends State<WebViewPage> {
         ),
         body: Container(
           height: double.infinity,
+          width: double.infinity,
           color: Colors.red.shade50,
           padding: EdgeInsets.all(20),
           child: Column(
