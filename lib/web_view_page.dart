@@ -166,7 +166,11 @@ class _WebViewPageState extends State<WebViewPage> {
       return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
-          leading: BackButton(),
+          leading:  IconButton(
+  icon: const Icon(Icons.arrow_back),
+  onPressed: () => Navigator.of(context).pop(),
+),
+
         ),
         body: const Center(
           child: CircularProgressIndicator(),
@@ -219,39 +223,17 @@ class _WebViewPageState extends State<WebViewPage> {
     final webUri = WebUri(widget.url);
 
     // Use PopScope to handle back button press
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (bool didPop) async {
-        if (didPop) {
-          return;
-        }
+    return 
 
         // Check if WebView can go back
-        bool canGoBack = await _controller.canGoBack();
-        print("Can go back in WebView: $canGoBack");
-
-        if (canGoBack) {
-          // Navigate back in WebView
-          _controller.goBack();
-        } else {
-          // Exit the screen if can't go back
-          Navigator.of(context).pop();
-        }
-      },
-      child: Scaffold(
+    Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
-          leading: BackButton(
-            onPressed: () async {
-              // Custom back button behavior
-              bool canGoBack = await _controller.canGoBack();
-              if (canGoBack) {
-                _controller.goBack();
-              } else {
-                Navigator.of(context).pop();
-              }
-            },
-          ),
+        leading: IconButton(
+  icon: const Icon(Icons.close),
+  onPressed: () => Navigator.of(context).pop(),
+),
+
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(3),
             child: LinearProgressIndicator(value: _progress),
@@ -313,7 +295,7 @@ class _WebViewPageState extends State<WebViewPage> {
               ),
           ],
         ),
-      ),
+      
     );
   }
 }
