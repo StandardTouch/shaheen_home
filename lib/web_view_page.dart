@@ -79,7 +79,7 @@ class _WebViewPageState extends State<WebViewPage> {
     });
   }
 
-  // Function to check if the URL is blacklisted
+// Function to check if the URL is in the whitelist
   Future<void> _checkIfUrlIsBlacklisted(String url) async {
     final domain = _extractDomain(url);
     print("Checking domain: $domain");
@@ -90,40 +90,51 @@ class _WebViewPageState extends State<WebViewPage> {
       return;
     }
 
-    // Fetch blacklisted domains from Firestore
-    print("Fetching blacklist from Firestore");
+    // Fetch whitelisted domains from Firestore
+    print("Fetching whitelist from Firestore");
     final snapshot =
-        await FirebaseFirestore.instance.collection('blacklist').get();
+        await FirebaseFirestore.instance.collection('whitelist').get();
 
-    print("Found ${snapshot.docs.length} blacklist entries");
+    print("Found ${snapshot.docs.length} whitelist entries");
 
-    bool isBlacklisted = false;
+    bool isWhitelisted = false;
     for (var doc in snapshot.docs) {
-      final blacklistedUrl = doc['url'];
-      final blacklistedDomain = _extractDomain(blacklistedUrl);
-      print("blacklisted domain: $blacklistedDomain");
+      final whitelistedUrl = doc['url'];
+      final whitelistedDomain = _extractDomain(whitelistedUrl);
+      print("whitelisted domain: $whitelistedDomain");
       final status = doc['status'] ?? false; // Ensure 'status' is present
-      print("blacklisted status: $status");
+      print("whitelisted status: $status");
 
       // Check if the domain matches and the status is true
-      final isMatch = blacklistedDomain == domain;
+      final isMatch = whitelistedDomain == domain;
       print(
-          "Domain match: $isMatch (comparing $blacklistedDomain with $domain)");
+          "Domain match: $isMatch (comparing $whitelistedDomain with $domain)");
 
       if (isMatch && status == true) {
         print(
-            "BLACKLISTED! Domain: $domain is in blacklist with status: $status");
-        isBlacklisted = true;
+            "WHITELISTED! Domain: $domain is in whitelist with status: $status");
+        isWhitelisted = true;
         break;
       }
     }
 
-    print("Final blacklist result: $isBlacklisted");
-    setState(() {
-      _isBlacklisted = isBlacklisted;
-      _currentDomain = domain; // Update the current domain
-      print("Updated state: _isBlacklisted=$_isBlacklisted");
-    });
+    if (isWhitelisted) {
+      print("Domain is whitelisted, updating current domain.");
+      setState(() {
+        _isBlacklisted = false; // Not blacklisted if in whitelist
+        _currentDomain = domain; // Update the current domain
+        print(
+            "Updated state: _isBlacklisted=$_isBlacklisted, _currentDomain=$_currentDomain");
+      });
+    } else {
+      print("BLACKLISTED! Domain: $domain is not in whitelist");
+      setState(() {
+        _isBlacklisted = true; // Mark as blacklisted if not in whitelist
+        _currentDomain = domain; // Update the current domain
+        print(
+            "Updated state: _isBlacklisted=$_isBlacklisted, _currentDomain=$_currentDomain");
+      });
+    }
   }
 
   // Function to extract domain from URL
@@ -166,11 +177,10 @@ class _WebViewPageState extends State<WebViewPage> {
       return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
-          leading:  IconButton(
-  icon: const Icon(Icons.arrow_back),
-  onPressed: () => Navigator.of(context).pop(),
-),
-
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
         ),
         body: const Center(
           child: CircularProgressIndicator(),
@@ -181,8 +191,8 @@ class _WebViewPageState extends State<WebViewPage> {
     if (_isBlacklisted) {
       return Scaffold(
         appBar: AppBar(
-          title: Text(widget.title),
-          leading: BackButton(),
+          centerTitle: true,
+          title: Text(_currentDomain),
         ),
         body: Container(
           height: double.infinity,
@@ -210,7 +220,7 @@ class _WebViewPageState extends State<WebViewPage> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.of(context).pop();
                 },
                 child: Text('Go Back'),
               ),
@@ -223,94 +233,91 @@ class _WebViewPageState extends State<WebViewPage> {
     final webUri = WebUri(widget.url);
 
     // Use PopScope to handle back button press
-  
-    
-      // Use WillPopScope to handle device back button and WebView back navigation
-  return WillPopScope(
-    onWillPop: () async {
-      // Check if WebView can go back
-      bool canGoBack = await _controller.canGoBack();
-      if (canGoBack) {
-        // Go back within the WebView's history (device back button will only navigate back inside the WebView)
-        _controller.goBack();
-        return false; // Prevent closing the page
-      } else {
-        // If no history, close the WebView page
-        Navigator.of(context).pop();
-        return true; // Allow closing the page
-      }
-    },
+
+    // Use WillPopScope to handle device back button and WebView back navigation
+    return WillPopScope(
+        onWillPop: () async {
+          // Check if WebView can go back
+          bool canGoBack = await _controller.canGoBack();
+          if (canGoBack) {
+            // Go back within the WebView's history (device back button will only navigate back inside the WebView)
+            _controller.goBack();
+            return false; // Prevent closing the page
+          } else {
+            // If no history, close the WebView page
+            Navigator.of(context).pop();
+            return true; // Allow closing the page
+          }
+        },
         // Check if WebView can go back
-    child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        leading: IconButton(
-  icon: const Icon(Icons.close),
-  onPressed: () => Navigator.of(context).pop(),
-),
-  
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(3),
-            child: LinearProgressIndicator(value: _progress),
-          ),
-        ),
-        body: Stack(
-          children: [
-            InAppWebView(
-              initialUrlRequest: URLRequest(url: webUri),
-              onWebViewCreated: (ctrl) => _controller = ctrl,
-              onProgressChanged: (ctrl, progress) {
-                setState(() => _progress = progress / 100);
-              },
-              onLoadError: (ctrl, uri, code, message) {
-                setState(() {
-                  _hasError = true;
-                  _errorMsg = 'Error $code: $message';
-                });
-              },
-              onLoadHttpError: (ctrl, uri, statusCode, description) {
-                setState(() {
-                  _hasError = true;
-                  _errorMsg = 'HTTP $statusCode: $description';
-                });
-              },
-              onLoadStart: (controller, url) {
-                if (url != null) {
-                  _checkIfUrlIsBlacklisted(url.toString());
-                }
-              },
-              shouldOverrideUrlLoading: (controller, navigationAction) async {
-                final url = navigationAction.request.url?.toString();
-                if (url != null) {
-                  await _checkIfUrlIsBlacklisted(url);
-                  if (_isBlacklisted) {
-                    return NavigationActionPolicy.CANCEL;
-                  }
-                }
-                return NavigationActionPolicy.ALLOW;
-              },
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(widget.title),
+            leading: IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () => Navigator.of(context).pop(),
             ),
-            if (_hasError)
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _errorMsg,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: _reload,
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(3),
+              child: LinearProgressIndicator(value: _progress),
+            ),
+          ),
+          body: Stack(
+            children: [
+              InAppWebView(
+                initialUrlRequest: URLRequest(url: webUri),
+                onWebViewCreated: (ctrl) => _controller = ctrl,
+                onProgressChanged: (ctrl, progress) {
+                  setState(() => _progress = progress / 100);
+                },
+                onLoadError: (ctrl, uri, code, message) {
+                  setState(() {
+                    _hasError = true;
+                    _errorMsg = 'Error $code: $message';
+                  });
+                },
+                onLoadHttpError: (ctrl, uri, statusCode, description) {
+                  setState(() {
+                    _hasError = true;
+                    _errorMsg = 'HTTP $statusCode: $description';
+                  });
+                },
+                onLoadStart: (controller, url) {
+                  if (url != null) {
+                    _checkIfUrlIsBlacklisted(url.toString());
+                  }
+                },
+                shouldOverrideUrlLoading: (controller, navigationAction) async {
+                  final url = navigationAction.request.url?.toString();
+                  if (url != null) {
+                    await _checkIfUrlIsBlacklisted(url);
+                    if (_isBlacklisted) {
+                      return NavigationActionPolicy.CANCEL;
+                    }
+                  }
+                  return NavigationActionPolicy.ALLOW;
+                },
               ),
-          ],
-        ),
-    )
-    );
+              if (_hasError)
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _errorMsg,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _reload,
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ));
   }
 }
