@@ -26,7 +26,7 @@ class _WebViewPageState extends State<WebViewPage> {
   bool _isLoading = true; // Add loading state
 
   String _currentDomain = ''; // Track current domain
-String _currentUrl = '';
+
   @override
   void initState() {
     super.initState();
@@ -209,7 +209,7 @@ String _currentUrl = '';
               ),
               SizedBox(height: 20),
               Text(
-                'You are not allowed to open this URL  \n $_currentUrl \n Contact your administrator for more info',
+                'You are not allowed to open this URL  \n $_currentDomain \n Contact your administrator for more info',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 20,
@@ -286,7 +286,7 @@ String _currentUrl = '';
                   if (url != null) {
                     _checkIfUrlIsBlacklisted(url.toString());
                    setState(() {
-                     _currentUrl = url.toString();
+                    
                    });
                   }
                 },
