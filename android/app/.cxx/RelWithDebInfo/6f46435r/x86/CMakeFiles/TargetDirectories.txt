@@ -1,0 +1,2 @@
+/home/yaseen/Desktop/shaheen_home/android/app/.cxx/RelWithDebInfo/6f46435r/x86/CMakeFiles/edit_cache.dir
+/home/yaseen/Desktop/shaheen_home/android/app/.cxx/RelWithDebInfo/6f46435r/x86/CMakeFiles/rebuild_cache.dir

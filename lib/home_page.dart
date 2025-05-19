@@ -130,7 +130,7 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text(
-            'Shaheen Gateway',
+            'Shaheen Home',
             style: TextStyle(fontSize: 24),
           ),
           backgroundColor: Theme.of(context).colorScheme.primary,
